@@ -1,0 +1,52 @@
+﻿services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: feedback-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: feedback_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  ai-service:
+    build:
+      context: ./smart-feedback-ai
+      dockerfile: Dockerfile
+    container_name: feedback-ai
+    restart: always
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+
+  backend-app:
+    build:
+      context: ./smart-feedback-engine/smart-feedback-engine
+      dockerfile: Dockerfile
+    container_name: knowledge-engine-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/feedback_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgres-db
+      - ai-service
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

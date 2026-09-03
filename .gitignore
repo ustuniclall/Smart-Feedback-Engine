@@ -1,0 +1,14 @@
+# Docker ve Sistem Dosyaları
+.DS_Store
+Thumbs.db
+
+# Ortam Değişkenleri (Şifreler ve API anahtarları asla yüklenmemeli!)
+.env
+
+# Bağımlılıklar ve Derleme Kalıntıları
+node_modules/
+venv/
+.venv/
+dist/
+build/
+*.log
